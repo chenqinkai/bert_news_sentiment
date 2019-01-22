@@ -15,13 +15,6 @@ DATA_DIR = r"D:\data\stocknet-dataset"
 WORD_TO_DELETE = ["AT_USER", "URL", '-']
 
 
-def load_price_data(ticker):
-    path = os.path.join(DATA_DIR, "price", "raw", "%s.csv" % ticker.upper())
-    df = pd.read_csv(path, index_col=0, parse_dates=True)
-    df["Adj Open"] = df["Adj Close"] / df["Close"] * df["Open"]
-    return df
-
-
 def clean_tweet(tweet, delete_hashtag=True):
     # TODO
     # 1. will we keep retweet (marked as "rt")
