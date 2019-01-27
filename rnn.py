@@ -165,7 +165,7 @@ def main():
     df_test = pd.read_csv(
         "D:/data/bert_news_sentiment/test.tsv", index_col=0, sep='\t')
     df_train = label_training_data(df_train, 0.1)
-    df_test = label_training_data(df_train, 0.5)
+    df_test = label_training_data(df_test, 0.5)
 
     # clean data
     X_train = [clean_one_review(str(review), word_to_index, NO_STOPWORD)
