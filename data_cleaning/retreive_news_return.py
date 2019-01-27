@@ -7,6 +7,7 @@ from multiprocessing.dummy import Pool as ThreadPool
 
 
 # TODO: add options to get return not only for 1 day, but also for multiple days
+# do not work for BABA, as it starts trading on 2014-09, hence no price for 2014-07
 
 
 US_MARKET_OPEN = datetime.time(hour=9, minute=30)
