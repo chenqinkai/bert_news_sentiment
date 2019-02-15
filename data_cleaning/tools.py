@@ -58,6 +58,14 @@ def label_test_data(df_news, col_name):
     return pd.concat([df_negative, df_positive]).sort_values("Date")
 
 
+def load_prediction(prediction_tsv_path):
+    """
+        load prediction into a list from tsv
+    """
+    df_pred = pd.read_csv(prediction_csv_path, sep='\t', header=None)
+    return (df_pred[1] - 0.5).tolist()
+
+
 def get_accuracy(df_news, predict_col_name, prediction, percentile):
     """
         type(prediction): list, which contains the score of the news
@@ -81,4 +89,7 @@ def plot_accuracy(df_news, predict_col_name, prediction):
     s = pd.Series()
     for p in range(1, 99):
         s.set_value(p, get_accuracy(df_news, predict_col_name, prediction, p))
+    # s = s.sort_index(ascending=False)
+    print(s)
     plt.plot(s)
+    plt.show()
