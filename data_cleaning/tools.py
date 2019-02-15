@@ -33,6 +33,10 @@ def cat_all_csv_rt(file_dir, save_path):
 
 
 def label_training_data(df_news, col_name, percentile):
+    # deal with cases where \t is part of headline
+    # in this case, it will sabotage the tsv format
+    df_news["Headline"] = df_news["Headline"].str.replace("\t", " ")
+    df_news["CleanHeadline"] = df_news["CleanHeadline"].str.replace("\t", " ")
     upper_threshold = df_news[col_name].quantile(1 - percentile)
     lower_threshold = df_news[col_name].quantile(percentile)
     df_positive = df_news[df_news[col_name] > upper_threshold]
@@ -43,6 +47,8 @@ def label_training_data(df_news, col_name, percentile):
 
 
 def label_test_data(df_news, col_name):
+    df_news["Headline"] = df_news["Headline"].str.replace("\t", " ")
+    df_news["CleanHeadline"] = df_news["CleanHeadline"].str.replace("\t", " ")
     df_positive = df_news[df_news[col_name] > 0]
     df_positive["Label"] = 1
     df_negative = df_news[df_news[col_name] < 0]
