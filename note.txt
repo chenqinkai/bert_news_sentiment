@@ -1,0 +1,13 @@
+Test result:
+
+BASE: 75%
+    horizon: 3
+    percentile: 10
+    max_len: 128
+    epoch: 3
+    leaning rate: 2e-5
+
+--epoch=3: 55% (overfitted)
+
+--percentile=15: 75% (no change)
+
