@@ -29,13 +29,27 @@ def load_test_tsv(path, prediction):
 
 
 def prediction_to_position(df_test):
-    th_upper = df_test["Prediction"].quantile(0.9)
-    th_lower = df_test["Prediction"].quantile(0.1)
+    """
+        where we define our trading strategy
+    """
+    th_upper = df_test["Prediction"].quantile(0.99)
+    th_lower = df_test["Prediction"].quantile(0.01)
     df_test["Position"] = 0
     df_test.loc[df_test["Prediction"] >= th_upper, "Position"] = 10000
     df_test.loc[df_test["Prediction"] <= th_lower, "Position"] = -10000
     # print(abs(df_test["Position"]).sum())
     return df_test
+
+
+def dict_to_str(d):
+    string = ""
+    for k, v in d.items():
+        string += '\n'
+        if k == "total_pnl" or k == "total_turnover":
+            string += "%s: %.2fM" % (k, v / 1000000)
+        else:
+            string += "%s: %.4f" % (k, v)
+    return string
 
 
 def get_stats(indicator_by_date):
@@ -47,8 +61,8 @@ def get_stats(indicator_by_date):
     }
     total_pnl = indicator_by_date["pnl"].sum()
     total_turnover = indicator_by_date["turnover"].sum()
-    bp = total_pnl / total_turnover
-    sharpe = indicator_by_date["pnl"].mean() / indicator_by_date["pnl"].var()
+    bp = total_pnl / total_turnover * 10000
+    sharpe = indicator_by_date["pnl"].mean() / indicator_by_date["pnl"].std()
     result["total_pnl"] = total_pnl
     result["total_turnover"] = total_turnover
     result["bp"] = bp
@@ -68,7 +82,7 @@ def get_pnl_by_date(df_test_with_position):
     stats = get_stats(indicator_by_date)
     fig, ax = plt.subplots()
     ax.plot(indicator_by_date["pnl"].cumsum())
-    ax.text(0.05, 0.95, str(stats), transform=ax.transAxes,
+    ax.text(0.05, 0.95, dict_to_str(stats), transform=ax.transAxes,
             fontsize=14, verticalalignment='top')
     plt.show()
     return indicator_by_date
