@@ -112,9 +112,9 @@ def get_model(input_shape, word_to_glove, word_to_index):
     embedding = embedding_layer(one_sentence_index)
 
     X = LSTM(64, return_sequences=True)(embedding)
-    X = Dropout(0.1)(X)
+    X = Dropout(0.5)(X)
     X = LSTM(32, return_sequences=False)(X)
-    X = Dropout(0.1)(X)
+    X = Dropout(0.5)(X)
     X = Dense(2)(X)
     X = Activation('softmax')(X)
 
@@ -205,7 +205,8 @@ def main():
     # verbose=2 to avoid progress bar multi-line printing problem
     model.fit(x=X_train_index, y=Y_train_oh,
               epochs=5, batch_size=32, verbose=2)
-    model_dir = r"D:\data\bert_news_sentiment\reuters\model\w2v_label-010_emd-100_maxlen-10_lstm-64-32_drop-01_epoch-5"
+    model_dir = r"D:\data\bert_news_sentiment\reuters\model\w2v_label-010_emd-%d_maxlen-%d_lstm-64-32_drop-05_epoch-5" % (
+        EMBEDDING_SIZE, MAX_LEN)
     if not os.path.exists(model_dir):
         os.makedirs(model_dir)
     model.save(os.path.join(model_dir, "model.h5"))

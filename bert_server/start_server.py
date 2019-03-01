@@ -11,4 +11,4 @@ if __name__ == '__main__':
     server.join()
 
 # to start:
-# python start_server.py -model_dir D:/data/nlp/bert/uncased_L-12_H-768_A-12 -num_worker=1 -tuned_model_dir D:/data/tmp -ckpt_name model.ckpt-102
+# python start_server.py -model_dir D:/data/nlp/bert/uncased_L-12_H-768_A-12 -num_worker=2 -pooling_strategy=NONE -tuned_model_dir D:/data/tmp -ckpt_name model.ckpt-102
