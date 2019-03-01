@@ -14,11 +14,13 @@ np.random.seed(1)
 EMBEDDING_SIZE = 100
 MAX_LEN = 10
 NO_STOPWORD = True
-STOPWORDS = set(stopwords.words('english') + ["rt"])  # remove "rt": retweet
+STOPWORDS = set(stopwords.words('english') +
+                ["rt", " "])  # remove "rt": retweet
 
 
 def clean_one_review(text, word_to_index, no_stopword=False):
-    bs = bs4.BeautifulSoup(text)
+    # because in movie reviews, sometimes there are html tags
+    bs = bs4.BeautifulSoup(text, "lxml")
     text_clean = bs.text.lower()
     text_clean = re.sub(r"[^a-zA-Z]", " ", text_clean)
     if no_stopword:
@@ -161,18 +163,20 @@ def main():
     word_to_index, index_to_word, word_to_glove = readGloveFile(
         "D:/data/nlp/glove/glove.6B.%dd.txt" % (EMBEDDING_SIZE))
     df_train = pd.read_csv(
-        "D:/data/bert_news_sentiment/train.tsv", index_col=0, sep='\t')
+        r"D:\data\reuters_headlines_by_ticker\horizon_3\training_horizon_3_percentile_10.tsv", index_col=0, sep='\t')
     df_test = pd.read_csv(
-        "D:/data/bert_news_sentiment/test.tsv", index_col=0, sep='\t')
-    df_train = label_training_data(df_train, 0.1)
-    df_test = label_training_data(df_test, 0.5)
+        r"D:\data\reuters_headlines_by_ticker\horizon_3\test_horizon_3.tsv", index_col=0, sep='\t')
+    # df_train = label_training_data(df_train, 0.1)
+    # df_test = label_training_data(df_test, 0.5)
 
     # clean data
+    print("cleaning train data ...")
     X_train = [clean_one_review(str(review), word_to_index, NO_STOPWORD)
-               for review in tqdm(df_train['Content'].values)]
+               for review in tqdm(df_train['Headline'].values)]
     Y_train = df_train['Label'].values
+    print("cleaning test data ...")
     X_test = [clean_one_review(str(review), word_to_index, NO_STOPWORD)
-              for review in df_test['Content'].values]
+              for review in tqdm(df_test['Headline'].values)]
     Y_test = df_test['Label'].values
 
     # convert to required format
@@ -186,9 +190,20 @@ def main():
     model.compile(loss='categorical_crossentropy',
                   optimizer='adam', metrics=['accuracy'])
 
+    # before launching, set gpu_options.allow_growth to True to avoid memory errors
+    import tensorflow as tf
+    from keras.backend.tensorflow_backend import set_session
+    config = tf.ConfigProto()
+    # dynamically grow the memory used on the GPU
+    config.gpu_options.allow_growth = True
+    sess = tf.Session(config=config)
+    # set this TensorFlow session as the default session for Keras
+    set_session(sess)
+
     # launch training, time consuming!!!
-    model.fit(x=X_train_index, y=Y_train_oh, epochs=10, batch_size=32)
-    model.save(r"D:\data\bert_news_sentiment\model\rnn\model.h5")
+    model.fit(x=X_train_index, y=Y_train_oh, epochs=5, batch_size=32)
+    model_dir = r"D:\data\bert_news_sentiment\reuters\model\w2v_label-010_emd-100_maxlen-10_lstm-64-32_drop-005"
+    model.save(os.path.join(model_dir, "model.h5"))
 
     # out-of-sample prediction
     y_pred = model.predict(X_test_index)
@@ -201,8 +216,10 @@ def main():
     fig = plt.figure()
     s_accuracy.sort_index().plot()
     # plt.show()
-    fig.savefig(r"D:\data\bert_news_sentiment\model\rnn\model.png")
+    fig.savefig(os.path.join(model_dir, "accuracy.png"))
 
 
+# when running with unenough memory on GPU, run this command to force the use of CPU (for Windows)
+# set CUDA_VISIBLE_DEVICES=-1
 if __name__ == '__main__':
     main()
