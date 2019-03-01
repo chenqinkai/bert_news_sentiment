@@ -8,6 +8,7 @@ from keras.models import Model
 from nltk.corpus import stopwords
 from tqdm import tqdm
 from matplotlib import pyplot as plt
+import os
 # to make sure that the generated model is the same for each time
 np.random.seed(1)
 
@@ -111,9 +112,9 @@ def get_model(input_shape, word_to_glove, word_to_index):
     embedding = embedding_layer(one_sentence_index)
 
     X = LSTM(64, return_sequences=True)(embedding)
-    X = Dropout(0.5)(X)
+    X = Dropout(0.1)(X)
     X = LSTM(32, return_sequences=False)(X)
-    X = Dropout(0.5)(X)
+    X = Dropout(0.1)(X)
     X = Dense(2)(X)
     X = Activation('softmax')(X)
 
@@ -159,6 +160,16 @@ def label_training_data(df_train, percent):
 
 
 def main():
+    # before launching, set gpu_options.allow_growth to True to avoid memory errors
+    import tensorflow as tf
+    from keras.backend.tensorflow_backend import set_session
+    config = tf.ConfigProto()
+    # dynamically grow the memory used on the GPU
+    config.gpu_options.allow_growth = True
+    sess = tf.Session(config=config)
+    # set this TensorFlow session as the default session for Keras
+    set_session(sess)
+
     # load data
     word_to_index, index_to_word, word_to_glove = readGloveFile(
         "D:/data/nlp/glove/glove.6B.%dd.txt" % (EMBEDDING_SIZE))
@@ -190,29 +201,25 @@ def main():
     model.compile(loss='categorical_crossentropy',
                   optimizer='adam', metrics=['accuracy'])
 
-    # before launching, set gpu_options.allow_growth to True to avoid memory errors
-    import tensorflow as tf
-    from keras.backend.tensorflow_backend import set_session
-    config = tf.ConfigProto()
-    # dynamically grow the memory used on the GPU
-    config.gpu_options.allow_growth = True
-    sess = tf.Session(config=config)
-    # set this TensorFlow session as the default session for Keras
-    set_session(sess)
-
     # launch training, time consuming!!!
-    model.fit(x=X_train_index, y=Y_train_oh, epochs=5, batch_size=32)
-    model_dir = r"D:\data\bert_news_sentiment\reuters\model\w2v_label-010_emd-100_maxlen-10_lstm-64-32_drop-005"
+    # verbose=2 to avoid progress bar multi-line printing problem
+    model.fit(x=X_train_index, y=Y_train_oh,
+              epochs=5, batch_size=32, verbose=2)
+    model_dir = r"D:\data\bert_news_sentiment\reuters\model\w2v_label-010_emd-100_maxlen-10_lstm-64-32_drop-01_epoch-5"
+    if not os.path.exists(model_dir):
+        os.makedirs(model_dir)
     model.save(os.path.join(model_dir, "model.h5"))
 
     # out-of-sample prediction
     y_pred = model.predict(X_test_index)
-    # accuray_oos = get_accuracy(y_pred, Y_test, percentile=0.5)
+    pd.DataFrame(y_pred).to_csv(os.path.join(
+        model_dir, "result.csv"), index=False, header=False)
 
     # to plot and save plot
     s_accuracy = pd.Series()
-    for p in np.linspace(0, 1, 101):
+    for p in np.linspace(0.01, 1, 100):
         s_accuracy.set_value(1 - p, get_accuracy(y_pred, Y_test, p))
+    s_accuracy.to_csv(os.path.join(model_dir, "accuracy.csv"))
     fig = plt.figure()
     s_accuracy.sort_index().plot()
     # plt.show()
