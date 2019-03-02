@@ -4,7 +4,7 @@ from keras.models import Sequential
 from keras.layers import LSTM, Dropout, Dense
 # to make sure that the generated model is the same for each time
 np.random.seed(1)
-from generate_embedding import generate_embedding
+from generate_embedding import generate_embedding_to_file
 import os
 import pandas as pd
 from matplotlib import pyplot as plt
@@ -68,16 +68,33 @@ if __name__ == "__main__":
     model = get_model()
     print(model.summary())
 
-    df_train = pd.read_csv(
-        r"D:\data\reuters_headlines_by_ticker\horizon_3\training_horizon_3_percentile_10.tsv", index_col=0, sep='\t')
-    df_test = pd.read_csv(
-        r"D:\data\reuters_headlines_by_ticker\horizon_3\test_horizon_3.tsv", index_col=0, sep='\t')
+    data_dir = "D:/data/reuters_headlines_by_ticker/horizon_3"
+    train_tsv_name = "training_horizon_3_percentile_10.tsv"
+    test_tsv_name = "test_horizon_3.tsv"
 
-    X_train = generate_embedding(df_train["Headline"].tolist(), MAX_LEN)
+    df_train = pd.read_csv(os.path.join(
+        data_dir, train_tsv_name), index_col=0, sep='\t')
+    df_test = pd.read_csv(os.path.join(
+        data_dir, test_tsv_name), index_col=0, sep='\t')
+
+    train_embedding_path = os.path.join(
+        data_dir, "embeddings", train_tsv_name[:-4] + "_base.npy")
+    test_embedding_path = os.path.join(
+        data_dir, "embeddings", test_tsv_name[:-4] + "_base.npy")
+
+    if not os.path.exists(train_embedding_path):
+        print("generating embedding for training set")
+        generate_embedding_to_file(
+            df_train["Headline"].tolist(), MAX_LEN, train_embedding_path)
+    X_train = np.load(train_embedding_path)
     Y_train = df_train['Label'].values
     Y_train_oh = convert_to_one_hot(Y_train)
 
-    X_test = generate_embedding(df_test["Headline"].tolist(), MAX_LEN)
+    if not os.path.exists(test_embedding_path):
+        print("generating embedding for test set")
+        generate_embedding_to_file(
+            df_test["Headline"].tolist(), MAX_LEN, test_embedding_path)
+    X_test = np.load(test_embedding_path)
     Y_test = df_test['Label'].values
 
     # launch training, time consuming!!!
