@@ -35,20 +35,20 @@ def generate_embedding_to_file(sentences, max_len, save_path, include_cls=False,
 
     client = BertClient(check_length=False)
 
-    embeddings = np.array([])
+    embeddings = []
     total_jobs = len(sentences) // nb_per_job - 1
 
     for idx in tqdm(range(total_jobs)):
         job_sentences = sentences[idx * nb_per_job: (idx + 1) * nb_per_job]
-        np.append(embeddings, generate_embedding(
-            client, job_sentences, max_len, include_cls, verbose=False))
+        embeddings += generate_embedding(client, job_sentences,
+                                         max_len, include_cls, verbose=False).tolist()
     if len(sentences) % nb_per_job != 0:
         job_sentences = sentences[len(
             sentences) - len(sentences) % nb_per_job:]
-        np.append(embeddings, generate_embedding(
-            client, job_sentences, max_len, include_cls, verbose=False))
+        embeddings += generate_embedding(client, job_sentences,
+                                         max_len, include_cls, verbose=False).tolist()
 
-    np.save(save_path, embeddings)
+    np.save(save_path, np.array(embeddings))
     client.close()
     return
 
