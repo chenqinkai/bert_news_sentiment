@@ -4,15 +4,20 @@ from keras.models import Sequential
 from keras.layers import LSTM, Dropout, Dense
 # to make sure that the generated model is the same for each time
 np.random.seed(1)
-from generate_embedding import generate_embedding_to_file
 import os
 import pandas as pd
 from matplotlib import pyplot as plt
 import tensorflow as tf
 
-MAX_LEN = 10
-EMBEDDING_SIZE = 768
-WE_ARE_ON_GCP = False
+MAX_LEN = 10  # @param {type:"integer"}
+EMBEDDING_SIZE = 768  # @param {type:"integer"}
+WE_ARE_ON_GCP = False  # @param {type:"boolean"}
+
+if not WE_ARE_ON_GCP:
+    from generate_embedding import generate_embedding_to_file
+else:
+    from google.colab import auth
+    auth.authenticate_user()
 
 
 def clean_one_sentence(text, word_to_index, no_stopword=False):
@@ -49,11 +54,11 @@ def get_accuracy(y_pred, y_test, percentile=1.0):
     return correct.shape[0] / float(df.shape[0])
 
 
-def get_model(input_dim=EMBEDDING_SIZE, input_length=MAX_LEN):
+def get_model(input_shape=(MAX_LEN, EMBEDDING_SIZE)):
     print("Start Initialzing Neural Network!")
     model = Sequential()
-    model.add(LSTM(64, input_dim=input_dim, input_length=input_length,
-                   return_sequences=True, activation='tanh'))
+    model.add(LSTM(64, return_sequences=True,
+                   activation="tanh", input_shape=input_shape))
     model.add(Dropout(0.5))
     # output shape : (4,4)
     model.add(LSTM(32, return_sequences=False, activation='tanh'))
@@ -100,12 +105,12 @@ if __name__ == "__main__":
             generate_embedding_to_file(
                 df_test["Headline"].tolist(), MAX_LEN, test_embedding_path)
 
-    with tf.gfile.Open(train_embedding_path, 'r') as f_train_emb:
+    with tf.gfile.Open(train_embedding_path, 'rb') as f_train_emb:
         X_train = np.load(f_train_emb)
     Y_train = df_train['Label'].values
     Y_train_oh = convert_to_one_hot(Y_train)
 
-    with tf.gfile.Open(test_embedding_path, 'r') as f_test_emb:
+    with tf.gfile.Open(test_embedding_path, 'rb') as f_test_emb:
         X_test = np.load(f_test_emb)
     Y_test = df_test['Label'].values
 
