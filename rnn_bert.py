@@ -18,6 +18,8 @@ if not WE_ARE_ON_GCP:
 else:
     from google.colab import auth
     auth.authenticate_user()
+from tensorflow.python.client import device_lib
+print(device_lib.list_local_devices())
 
 
 def clean_one_sentence(text, word_to_index, no_stopword=False):
@@ -122,13 +124,18 @@ if __name__ == "__main__":
     if WE_ARE_ON_GCP:
         model_dir = "gs://bert-news-sentiment/rnn/model/bert_label-010_emd-%d_maxlen-%d_lstm-64-32_drop-050_epoch-5" % (
             EMBEDDING_SIZE, MAX_LEN)
+        if not tf.gfile.Exists(model_dir):
+            tf.gfile.MakeDirs(model_dir)
+        model.save("model.h5")
+        with file_io.FileIO('model.h5', mode='rb') as input_f:
+            with file_io.FileIO(os.path.join(model_dir, "model.h5"), mode='wb') as output_f:
+                output_f.write(input_f.read())
     else:
         model_dir = r"D:\data\bert_news_sentiment\reuters\model\bert_label-010_emd-%d_maxlen-%d_lstm-64-32_drop-050_epoch-5" % (
             EMBEDDING_SIZE, MAX_LEN)
-    if not tf.gfile.Exists(model_dir):
-        tf.gfile.MakeDirs(model_dir)
-    with tf.gfile.Open(os.path.join(model_dir, "model.h5"), 'w') as f_model:
-        model.save(f_model)
+        if not tf.gfile.Exists(model_dir):
+            tf.gfile.MakeDirs(model_dir)
+        model.save(os.path.join(model_dir, "model.h5"))
 
     # out-of-sample prediction
     y_pred = model.predict(X_test)
