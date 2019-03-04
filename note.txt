@@ -11,3 +11,18 @@ BASE: 75%
 
 --percentile=15: 75% (no change)
 
+
+RNN:
+    bert base embedding, max_len=20, epoch=5:
+    Epoch 1/5
+    50000/50000 [==============================] - 148s 3ms/step - loss: 0.6910 - acc: 0.5322
+    Epoch 2/5
+    50000/50000 [==============================] - 145s 3ms/step - loss: 0.6741 - acc: 0.5734
+    Epoch 3/5
+    50000/50000 [==============================] - 144s 3ms/step - loss: 0.6601 - acc: 0.5990
+    Epoch 4/5
+    50000/50000 [==============================] - 145s 3ms/step - loss: 0.6425 - acc: 0.6181
+    Epoch 5/5
+    50000/50000 [==============================] - 146s 3ms/step - loss: 0.6204 - acc: 0.6431
+
+    bert base embedding, max_len=20, epoch=10:

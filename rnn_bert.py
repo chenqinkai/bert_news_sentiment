@@ -122,7 +122,7 @@ if __name__ == "__main__":
 
     # save model
     if WE_ARE_ON_GCP:
-        model_dir = "gs://bert-news-sentiment/rnn/model/bert_label-010_emd-%d_maxlen-%d_lstm-64-32_drop-050_epoch-5" % (
+        model_dir = "gs://bert-news-sentiment/rnn/model/reuters/bert_label-010_emd-%d_maxlen-%d_lstm-64-32_drop-050_epoch-5" % (
             EMBEDDING_SIZE, MAX_LEN)
         if not tf.gfile.Exists(model_dir):
             tf.gfile.MakeDirs(model_dir)
