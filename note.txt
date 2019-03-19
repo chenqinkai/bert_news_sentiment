@@ -26,3 +26,32 @@ RNN:
     50000/50000 [==============================] - 146s 3ms/step - loss: 0.6204 - acc: 0.6431
 
     bert base embedding, max_len=20, epoch=10:
+
+bert_label-010_emd-768_maxlen-32_lstm-256-128-64_drop-050_epoch-2_lr-100_batch-64_layer-2： 72%
+bert_label-010_emd-768_maxlen-32_lstm-256-128-64_drop-050_epoch-3_lr-100_batch-64_layer-2： 74%
+bert_label-010_emd-768_maxlen-32_lstm-256-128-64_drop-050_epoch-4_lr-100_batch-64_layer-2： 70%
+
+bert_label-010_emd-768_maxlen-32_lstm-256-128-64_drop-050_epoch-2_lr-100_batch-128_layer-2： 74%
+bert_label-010_emd-768_maxlen-32_lstm-256-128-64_drop-050_epoch-3_lr-100_batch-128_layer-2： 74%
+bert_label-010_emd-768_maxlen-32_lstm-256-128-64_drop-050_epoch-4_lr-100_batch-128_layer-2： 68%
+
+bert_label-010_emd-768_maxlen-32_lstm-256-128-64_drop-050_epoch-3_lr-500_batch-128_layer-2： 48%
+bert_label-010_emd-768_maxlen-32_lstm-256-128-64_drop-050_epoch-3_lr-200_batch-128_layer-2： 72%
+bert_label-010_emd-768_maxlen-32_lstm-256-128-64_drop-050_epoch-3_lr-100_batch-128_layer-2： 74%
+bert_label-010_emd-768_maxlen-32_lstm-256-128-64_drop-050_epoch-3_lr-50_batch-128_layer-2： 72%
+bert_label-010_emd-768_maxlen-32_lstm-256-128-64_drop-050_epoch-3_lr-10_batch-128_layer-2： 70%
+
+bert_label-010_emd-768_maxlen-32_lstm-256-128-64_drop-020_epoch-3_lr-100_batch-128_layer-2： 70%
+bert_label-010_emd-768_maxlen-32_lstm-256-128-64_drop-050_epoch-3_lr-100_batch-128_layer-2： 74%
+bert_label-010_emd-768_maxlen-32_lstm-256-128-64_drop-080_epoch-3_lr-100_batch-128_layer-2： 70%
+
+bert_label-010_emd-768_maxlen-32_lstm-256-192-128_drop-050_epoch-3_lr-100_batch-128_layer-2： 70%
+bert_label-010_emd-768_maxlen-32_lstm-128-128-128_drop-050_epoch-3_lr-100_batch-128_layer-2： 70%
+bert_label-010_emd-768_maxlen-32_lstm-256-128-64_drop-050_epoch-3_lr-100_batch-128_layer-2： 74%
+bert_label-010_emd-768_maxlen-32_lstm-256-128-4_drop-050_epoch-3_lr-100_batch-128_layer-2： 00% xx
+bert_label-010_emd-768_maxlen-32_lstm-128-64-32_drop-050_epoch-3_lr-100_batch-128_layer-2： 74%
+bert_label-010_emd-768_maxlen-32_lstm-192-128-64_drop-050_epoch-3_lr-100_batch-128_layer-2： 70%
+bert_label-010_emd-768_maxlen-32_lstm-256-128_drop-050_epoch-3_lr-100_batch-128_layer-2： 68%
+bert_label-010_emd-768_maxlen-32_lstm-128-64_drop-050_epoch-3_lr-100_batch-128_layer-2： 72.5%
+bert_label-010_emd-768_maxlen-32_lstm-64-32_drop-050_epoch-3_lr-100_batch-128_layer-2： 68%
+bert_label-010_emd-768_maxlen-32_lstm-256-128-64-32_drop-050_epoch-3_lr-100_batch-128_layer-2: --%
