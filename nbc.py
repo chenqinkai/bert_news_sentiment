@@ -1,13 +1,14 @@
-from nltk import NaiveBayesClassifier
 import os
+import pickle
+
+import numpy as np
 import pandas as pd
-from nltk.tokenize import word_tokenize
+from nltk import NaiveBayesClassifier
 from nltk.corpus import stopwords
-from tqdm import tqdm
 from nltk.sentiment import SentimentAnalyzer
 from nltk.sentiment.util import *
-import pickle
-import numpy as np
+from nltk.tokenize import word_tokenize
+from tqdm import tqdm
 
 if os.name == "nt":
     DATA_DIR = r"D:\data\reuters_headlines_by_ticker\horizon_3"

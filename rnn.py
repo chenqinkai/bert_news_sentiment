@@ -12,6 +12,8 @@ import os
 # to make sure that the generated model is the same for each time
 np.random.seed(1)
 
+from utils import get_accuracy
+
 EMBEDDING_SIZE = 100
 MAX_LEN = 10
 NO_STOPWORD = True
@@ -131,17 +133,6 @@ def convert_to_one_hot(Y):
     Y_oh[:, 0] = 1 - Y
     Y_oh[:, 1] = Y
     return Y_oh
-
-
-def get_accuracy(y_pred, y_test, percentile=1.0):
-    df = pd.DataFrame()
-    df['pred'] = (y_pred[:, 1] - 0.5) * 2
-    df['test'] = (y_test - 0.5) * 2
-    upper = df['pred'].quantile(1 - percentile / 2.)
-    lower = df['pred'].quantile(percentile / 2.)
-    df = df[(df['pred'] >= upper) | (df['pred'] <= lower)]
-    correct = df[np.sign(df['pred']) == np.sign(df['test'])]
-    return correct.shape[0] / float(df.shape[0])
 
 
 def label_training_data(df_train, percent):
