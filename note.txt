@@ -42,7 +42,9 @@ bert_label-010_emd-768_maxlen-32_lstm-256-128-64_drop-050_epoch-3_lr-50_batch-12
 bert_label-010_emd-768_maxlen-32_lstm-256-128-64_drop-050_epoch-3_lr-10_batch-128_layer-2： 70%
 
 bert_label-010_emd-768_maxlen-32_lstm-256-128-64_drop-020_epoch-3_lr-100_batch-128_layer-2： 70%
+bert_label-010_emd-768_maxlen-32_lstm-256-128-64_drop-040_epoch-3_lr-100_batch-128_layer-2： 74%
 bert_label-010_emd-768_maxlen-32_lstm-256-128-64_drop-050_epoch-3_lr-100_batch-128_layer-2： 74%
+bert_label-010_emd-768_maxlen-32_lstm-256-128-64_drop-060_epoch-3_lr-100_batch-128_layer-2： 74%
 bert_label-010_emd-768_maxlen-32_lstm-256-128-64_drop-080_epoch-3_lr-100_batch-128_layer-2： 70%
 
 bert_label-010_emd-768_maxlen-32_lstm-256-192-128_drop-050_epoch-3_lr-100_batch-128_layer-2： 70%
@@ -54,4 +56,30 @@ bert_label-010_emd-768_maxlen-32_lstm-192-128-64_drop-050_epoch-3_lr-100_batch-1
 bert_label-010_emd-768_maxlen-32_lstm-256-128_drop-050_epoch-3_lr-100_batch-128_layer-2： 68%
 bert_label-010_emd-768_maxlen-32_lstm-128-64_drop-050_epoch-3_lr-100_batch-128_layer-2： 72.5%
 bert_label-010_emd-768_maxlen-32_lstm-64-32_drop-050_epoch-3_lr-100_batch-128_layer-2： 68%
-bert_label-010_emd-768_maxlen-32_lstm-256-128-64-32_drop-050_epoch-3_lr-100_batch-128_layer-2: --%
+bert_label-010_emd-768_maxlen-32_lstm-256-128-64-32_drop-050_epoch-3_lr-100_batch-128_layer-2: 72%
+
+bert_label-010_emd-768_maxlen-32_lstm-256-128-64_drop-050_epoch-3_lr-100_batch-128_layer-2_gru: 70%
+bert_label-010_emd-768_maxlen-32_lstm-128-64-32_drop-050_epoch-3_lr-100_batch-128_layer-2_gru: 71%
+
+bert_label-010_emd-768_maxlen-64_lstm-256-128-64_drop-050_epoch-3_lr-100_batch-128_layer-2_lstm: 74%
+bert_label-010_emd-768_maxlen-64_lstm-128-64-32_drop-050_epoch-3_lr-100_batch-128_layer-2_lstm: 74%
+bert_label-010_emd-768_maxlen-64_lstm-128-64-32_drop-050_epoch-2_lr-100_batch-128_layer-2_lstm: 72.5%
+
+bert_label-010_emd-768_maxlen-96_lstm-256-128-64_drop-050_epoch-3_lr-100_batch-128_layer-2_lstm: 75%
+
+tuned:
+berttuned_label-010_emd-768_maxlen-64_lstm-256-128-64_drop-050_epoch-4_lr-2_batch-128_layer-1_lstm: 74%
+berttuned_label-010_emd-768_maxlen-64_lstm-256-128-64_drop-050_epoch-8_lr-2_batch-128_layer-1_lstm: 75%
+berttuned_label-010_emd-768_maxlen-64_lstm-256-128-64_drop-050_epoch-3_lr-100_batch-128_layer-1_lstm：77%
+berttuned_label-010_emd-768_maxlen-64_lstm-256-128-64_drop-050_epoch-3_lr-200_batch-128_layer-1_lstm：75%
+
+berttuned_label-010_emd-768_maxlen-96_lstm-256-128-64_drop-050_epoch-3_lr-100_batch-128_layer-1_lstm：77%
+berttuned_label-010_emd-768_maxlen-96_lstm-256-128-64_drop-050_epoch-4_lr-100_batch-128_layer-1_lstm：68%
+berttuned_label-010_emd-768_maxlen-96_lstm-256-128-64_drop-050_epoch-3_lr-200_batch-128_layer-1_lstm：75%
+
+berttuned_label-010_emd-768_maxlen-128_lstm-256-128-64_drop-050_epoch-3_lr-100_batch-128_layer-1_lstm: 70%
+berttuned_label-010_emd-768_maxlen-128_lstm-256-128-64_drop-050_epoch-3_lr-2_batch-128_layer-1_lstm: 76%
+berttuned_label-010_emd-768_maxlen-128_lstm-256-128-64_drop-050_epoch-3_lr-10_batch-128_layer-1_lstm: 68%
+berttuned_label-010_emd-768_maxlen-128_lstm-256-128-64_drop-050_epoch-3_lr-5_batch-128_layer-1_lstm: 75%
+berttuned_label-010_emd-768_maxlen-128_lstm-256-128-64_drop-050_epoch-8_lr-2_batch-128_layer-1_lstm: 72.5%
+berttuned_label-010_emd-768_maxlen-128_lstm-256-128-64_drop-050_epoch-5_lr-2_batch-128_layer-1_lstm: 77%
