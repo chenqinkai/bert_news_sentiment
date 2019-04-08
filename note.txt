@@ -83,3 +83,8 @@ berttuned_label-010_emd-768_maxlen-128_lstm-256-128-64_drop-050_epoch-3_lr-10_ba
 berttuned_label-010_emd-768_maxlen-128_lstm-256-128-64_drop-050_epoch-3_lr-5_batch-128_layer-1_lstm: 75%
 berttuned_label-010_emd-768_maxlen-128_lstm-256-128-64_drop-050_epoch-8_lr-2_batch-128_layer-1_lstm: 72.5%
 berttuned_label-010_emd-768_maxlen-128_lstm-256-128-64_drop-050_epoch-5_lr-2_batch-128_layer-1_lstm: 77%
+
+BFAM
+Hudson River Trading
+Qube
+World Quant
