@@ -2,6 +2,7 @@ import pandas as pd
 from matplotlib import pyplot as plt
 import numpy as np
 import os
+from tqdm import tqdm
 
 
 def load_prediction(prediction_file_path):
@@ -136,12 +137,12 @@ def parse_file_argument(file_name):
 def main():
     # prediction = load_prediction(
     #     r"D:\data\reuters_headlines_by_ticker\horizon_3\bert_models_reuters_horizon_3_percentile_10_prediction_test_horizon_3_test_results.tsv")
-    PREDICTION_DIR = ""
-    SAVE_DIR = ""
+    PREDICTION_DIR = r"D:\data\bert_news_sentiment\reuters\prediction"
+    SAVE_DIR = r"D:\data\bert_news_sentiment\reuters\backtest\event_driven"
     df_stat = pd.DataFrame()
     df_test = load_test_tsv(
         r"D:\data\reuters_headlines_by_ticker\horizon_3\test_horizon_3.tsv")
-    for file_name in os.listdir(PREDICTION_DIR):
+    for file_name in tqdm(os.listdir(PREDICTION_DIR)):
         prediction = load_prediction(os.path.join(PREDICTION_DIR, file_name))
         df_test_copy = df_test.copy()
         df_test_copy["Prediction"] = prediction
