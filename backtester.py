@@ -1,7 +1,10 @@
+import math
+import os
+
+import numpy as np
 import pandas as pd
 from matplotlib import pyplot as plt
-import numpy as np
-import os
+from pandas.tseries.offsets import BDay
 from tqdm import tqdm
 
 
@@ -29,9 +32,15 @@ def calculate_daily_pnl(df_daily, return_col_name):
 
 
 def load_test_tsv(path):
+    """
+        load test tsv, then move news in weekend to its next business day
+    """
     # path = r"D:\data\reuters_headlines_by_ticker\horizon_3\test_horizon_3.tsv"
     df = pd.read_csv(path, sep='\t')
     df["Date"] = pd.to_datetime(df["Date"], format="%Y-%m-%d")
+    df["Date"] = df["Date"].apply(
+        lambda x: x + BDay(1) if x.weekday() >= 5 else x)
+    # df = df.apply(move_weekend)
     return df
 
 
@@ -69,7 +78,8 @@ def get_stats(indicator_by_date):
     total_pnl = indicator_by_date["pnl"].sum()
     total_turnover = indicator_by_date["turnover"].sum()
     bp = total_pnl / total_turnover * 10000
-    sharpe = indicator_by_date["pnl"].mean() / indicator_by_date["pnl"].std()
+    sharpe = indicator_by_date["pnl"].mean(
+    ) / indicator_by_date["pnl"].std() * math.sqrt(indicator_by_date.shape[0])
     result["total_pnl"] = total_pnl
     result["total_turnover"] = total_turnover
     result["bp"] = bp
