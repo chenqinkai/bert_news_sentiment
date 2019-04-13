@@ -1,3 +1,4 @@
+import argparse
 import math
 import os
 
@@ -93,7 +94,7 @@ def get_pnl_by_date(df_test_with_position, save_path=None, show_fig=True):
     for d in sorted(all_dates):
         df_daily = df_test_with_position[df_test_with_position["Date"] == d]
         pnl = calculate_daily_pnl(df_daily, "return_3")
-        turnover = abs(df_daily["Position"]).sum()
+        turnover = abs(df_daily["Position"]).sum() * 2
         indicator_by_date.loc[d, "pnl"] = pnl
         indicator_by_date.loc[d, "turnover"] = turnover
     stats = get_stats(indicator_by_date)
@@ -120,12 +121,15 @@ def parse_one_argument(arg):
     raise ValueError("argument not recognized: %s" % arg)
 
 
-def parse_file_argument(file_name):
+def parse_file_argument(file_name, model_type="rnn"):
     """
         parse file names like:
         bert_label-010_emd-768_maxlen-32_lstm-128-128-128_drop-050_epoch-3_lr-100_batch-128_layer-2
         bert_label-010_emd-768_maxlen-32_lstm-128-64-32_drop-050_epoch-5/
+        horizon-3_percentile-10_epoch-3_batch-32_lr-2_maxlen-32
     """
+    if model_type not in ["rnn", "bert"]:
+        raise ValueError("model_type should be either rnn or bert")
     file_name = file_name.split('.')[0]
     d = {
         "tuned": False,
@@ -140,6 +144,13 @@ def parse_file_argument(file_name):
         "layer": 1,
         "cell_type": "lstm",
         "full_name": file_name
+    } if model_type == "rnn" else {
+        "horizon": 3,
+        "percentile": 10,
+        "epoch": 3,
+        "batch": 32,
+        "lr": 2,
+        "max_len": 32
     }
     splited = file_name.split('_')
     for arg in splited:
@@ -149,24 +160,39 @@ def parse_file_argument(file_name):
 
 
 def main():
-    # prediction = load_prediction(
-    #     r"D:\data\reuters_headlines_by_ticker\horizon_3\bert_models_reuters_horizon_3_percentile_10_prediction_test_horizon_3_test_results.tsv")
-    PREDICTION_DIR = r"D:\data\bert_news_sentiment\reuters\prediction"
-    SAVE_DIR = r"D:\data\bert_news_sentiment\reuters\backtest\event_driven"
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--prediction_path")
+    parser.add_argument("--save_path")
+    parser.add_argument("--prediction_dir")
+    parser.add_argument(
+        "--save_dir", default=r"D:\data\bert_news_sentiment\reuters\backtest\event_driven\bert")
+    args = parser.parse_args()
+    if (args.prediction_dir and args.prediction_path) or (not args.prediction_dir and not args.prediction_path):
+        raise ValueError(
+            "you should specify either a directory or a file to do backtest")
+    # PREDICTION_DIR = r"D:\data\bert_news_sentiment\reuters\prediction"
     df_stat = pd.DataFrame()
     df_test = load_test_tsv(
         r"D:\data\reuters_headlines_by_ticker\horizon_3\test_horizon_3.tsv")
-    for index, file_name in tqdm(enumerate(os.listdir(PREDICTION_DIR))):
-        prediction = load_prediction(os.path.join(PREDICTION_DIR, file_name))
+    is_predict_dir = args.prediction_dir is not None
+    if is_predict_dir:
+        files_to_backtest = os.listdir(args.prediction_dir)
+    else:
+        files_to_backtest = [args.prediction_path]
+    for index, file_name in tqdm(enumerate(files_to_backtest)):
+        prediction = load_prediction(
+            os.path.join(args.prediction_dir if is_predict_dir else "", file_name))
         df_test_copy = df_test.copy()
         df_test_copy["Prediction"] = prediction
         df_test_copy = prediction_to_position(df_test_copy)
         pnl_by_date, stats = get_pnl_by_date(df_test_copy, save_path=os.path.join(
-            SAVE_DIR, file_name.split('.')[0] + ".png"), show_fig=False)
-        param = parse_file_argument(file_name)
-        param.update(stats)
-        df_stat = df_stat.append(pd.Series(param, name=index))
-    df_stat.to_csv(os.path.join(SAVE_DIR, "summary.csv"))
+            args.save_dir if is_predict_dir else "", file_name.split('.')[0] + ".png"), show_fig=False)
+        if is_predict_dir:
+            param = parse_file_argument(file_name)
+            param.update(stats)
+            df_stat = df_stat.append(pd.Series(param, name=index))
+    if is_predict_dir:
+        df_stat.to_csv(os.path.join(args.save_dir, "summary.csv"))
 
 
 if __name__ == "__main__":
