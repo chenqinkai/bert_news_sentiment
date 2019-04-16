@@ -14,7 +14,7 @@ np.random.seed(1)
 
 from utils import get_accuracy
 
-EMBEDDING_SIZE = 100
+EMBEDDING_SIZE = 300
 MAX_LEN = 96
 NO_STOPWORD = True
 STOPWORDS = set(stopwords.words('english') +
