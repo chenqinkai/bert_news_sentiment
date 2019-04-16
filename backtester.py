@@ -5,23 +5,9 @@ import os
 import numpy as np
 import pandas as pd
 from matplotlib import pyplot as plt
-from pandas.tseries.offsets import BDay
 from tqdm import tqdm
 
-
-def load_prediction(prediction_file_path):
-    """
-        load prediction into a list from tsv
-    """
-    if prediction_file_path.endswith(".tsv"):
-        with open(prediction_file_path, 'r') as f:
-            df_pred = pd.read_csv(f, sep='\t', header=None)
-        return ((df_pred[1] - 0.5) * 2).tolist()
-    elif prediction_file_path.endswith(".npy"):
-        df_pred = np.load(prediction_file_path)
-        return (df_pred[:, 1] - 0.5) * 2
-    else:
-        raise NotImplementedError("only .tsv and .npy are accepted")
+from utils import load_prediction, load_test_tsv
 
 
 def calculate_daily_pnl(df_daily, return_col_name):
@@ -30,19 +16,6 @@ def calculate_daily_pnl(df_daily, return_col_name):
         df_should contain a column called "Position", which indicates the nominal of stocks that we should get
     """
     return (df_daily["Position"] * df_daily[return_col_name]).sum()
-
-
-def load_test_tsv(path):
-    """
-        load test tsv, then move news in weekend to its next business day
-    """
-    # path = r"D:\data\reuters_headlines_by_ticker\horizon_3\test_horizon_3.tsv"
-    df = pd.read_csv(path, sep='\t')
-    df["Date"] = pd.to_datetime(df["Date"], format="%Y-%m-%d")
-    df["Date"] = df["Date"].apply(
-        lambda x: x + BDay(1) if x.weekday() >= 5 else x)
-    # df = df.apply(move_weekend)
-    return df
 
 
 def prediction_to_position(df_test):

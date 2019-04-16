@@ -15,7 +15,7 @@ np.random.seed(1)
 from utils import get_accuracy
 
 EMBEDDING_SIZE = 100
-MAX_LEN = 10
+MAX_LEN = 96
 NO_STOPWORD = True
 STOPWORDS = set(stopwords.words('english') +
                 ["rt", " "])  # remove "rt": retweet
@@ -113,9 +113,9 @@ def get_model(input_shape, word_to_glove, word_to_index):
     embedding_layer = pretrained_embedding_layer(word_to_glove, word_to_index)
     embedding = embedding_layer(one_sentence_index)
 
-    X = LSTM(64, return_sequences=True)(embedding)
+    X = LSTM(128, return_sequences=True)(embedding)
     X = Dropout(0.5)(X)
-    X = LSTM(32, return_sequences=False)(X)
+    X = LSTM(64, return_sequences=False)(X)
     X = Dropout(0.5)(X)
     X = Dense(2)(X)
     X = Activation('softmax')(X)
@@ -161,15 +161,24 @@ def main():
     # set this TensorFlow session as the default session for Keras
     set_session(sess)
 
+    if os.name == "nt":
+        GLOVE_DIR = "D:/data/nlp/glove"
+        DATA_DIR = r"D:\data\reuters_headlines_by_ticker\horizon_3"
+        MODEL_DIR = r"D:\data\bert_news_sentiment\reuters\model\w2v_label-010_emd-%d_maxlen-%d_lstm-128-64_drop-050_epoch-5_batch-32" % (
+            EMBEDDING_SIZE, MAX_LEN)
+    elif os.name == "posix":
+        GLOVE_DIR = "/home/chenqinkai/data/bert-news-sentiment/glove"
+        DATA_DIR = "/home/chenqinkai/data/bert-news-sentiment/news/reuters/horizon_3"
+        MODEL_DIR = "/home/chenqinkai/data/rnn/model_glove/w2v_label-010_emd-%d_maxlen-%d_lstm-128-64_drop-050_epoch-5_batch-32" % (
+            EMBEDDING_SIZE, MAX_LEN)
+
     # load data
     word_to_index, index_to_word, word_to_glove = readGloveFile(
-        "D:/data/nlp/glove/glove.6B.%dd.txt" % (EMBEDDING_SIZE))
-    df_train = pd.read_csv(
-        r"D:\data\reuters_headlines_by_ticker\horizon_3\training_horizon_3_percentile_10.tsv", index_col=0, sep='\t')
+        os.path.join(GLOVE_DIR, "glove.6B.%dd.txt" % (EMBEDDING_SIZE)))
+    df_train = pd.read_csv(os.path.join(
+        DATA_DIR, "training_horizon_3_percentile_10.tsv"), index_col=0, sep='\t')
     df_test = pd.read_csv(
-        r"D:\data\reuters_headlines_by_ticker\horizon_3\test_horizon_3.tsv", index_col=0, sep='\t')
-    # df_train = label_training_data(df_train, 0.1)
-    # df_test = label_training_data(df_test, 0.5)
+        os.path.join(DATA_DIR, "test_horizon_3.tsv"), index_col=0, sep='\t')
 
     # clean data
     print("cleaning train data ...")
@@ -196,26 +205,25 @@ def main():
     # verbose=2 to avoid progress bar multi-line printing problem
     model.fit(x=X_train_index, y=Y_train_oh,
               epochs=5, batch_size=32, verbose=2)
-    model_dir = r"D:\data\bert_news_sentiment\reuters\model\w2v_label-010_emd-%d_maxlen-%d_lstm-64-32_drop-05_epoch-5" % (
-        EMBEDDING_SIZE, MAX_LEN)
-    if not os.path.exists(model_dir):
-        os.makedirs(model_dir)
-    model.save(os.path.join(model_dir, "model.h5"))
+
+    if not os.path.exists(MODEL_DIR):
+        os.makedirs(MODEL_DIR)
+    model.save(os.path.join(MODEL_DIR, "model.h5"))
 
     # out-of-sample prediction
     y_pred = model.predict(X_test_index)
     pd.DataFrame(y_pred).to_csv(os.path.join(
-        model_dir, "result.csv"), index=False, header=False)
+        MODEL_DIR, "result.csv"), index=False, header=False)
 
     # to plot and save plot
     s_accuracy = pd.Series()
     for p in np.linspace(0.01, 1, 100):
         s_accuracy.set_value(1 - p, get_accuracy(y_pred, Y_test, p))
-    s_accuracy.to_csv(os.path.join(model_dir, "accuracy.csv"))
+    s_accuracy.to_csv(os.path.join(MODEL_DIR, "accuracy.csv"))
     fig = plt.figure()
     s_accuracy.sort_index().plot()
     # plt.show()
-    fig.savefig(os.path.join(model_dir, "accuracy.png"))
+    fig.savefig(os.path.join(MODEL_DIR, "accuracy.png"))
 
 
 # when running with unenough memory on GPU, run this command to force the use of CPU (for Windows)
