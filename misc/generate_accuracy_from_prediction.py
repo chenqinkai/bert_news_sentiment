@@ -18,19 +18,14 @@ def get_parser():
 
 
 def get_one_pred_stat(y_test, y_pred, ret):
-    d = {
-        1: 0.,
-        2: 0.,
-        5: 0.,
-        10: 0.,
-        100: 0.,
-        "whighted_sum": 0.
-    }
-    for p in d.keys():
-        if type(p) is str:
-            continue
-        d[p] = get_accuracy(y_pred, y_test, p / 100., transform=False)
-    d["whighted_sum"] = sum(y_pred * ret)
+    d = {}
+    percentiles_list = [1, 2, 5, 10, 100]
+    for p in percentiles_list:
+        acc, mcc = get_accuracy(y_pred, y_test, p / 100.,
+                                transform=False, calculate_mcc=True)
+        d["%d_acc" % p] = acc
+        d["%d_mcc" % p] = mcc
+    # d["whighted_sum"] = sum(y_pred * ret)
     return d
 
 

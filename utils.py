@@ -1,9 +1,20 @@
 import pandas as pd
 import numpy as np
 from pandas.tseries.offsets import BDay
+import math
 
 
-def get_accuracy(y_pred, y_test, percentile=1.0, transform=True):
+def mcc(tp, tn, fp, fn):
+    up = tp * tn - fp * fn
+    t1 = (tp + fp) if (tp + fp) else 1
+    t2 = (tp + fn) if (tp + fn) else 1
+    t3 = (tn + fp) if (tn + fp) else 1
+    t4 = (tn + fn) if (tn + fn) else 1
+    down = math.sqrt(t1 * t2 * t3 * t4)
+    return float(up) / down
+
+
+def get_accuracy(y_pred, y_test, percentile=1.0, transform=True, calculate_mcc=False):
     """
         y_pred: np.array, first column is probability for negative classification
                           second column is probability for negative classification
@@ -19,7 +30,19 @@ def get_accuracy(y_pred, y_test, percentile=1.0, transform=True):
     lower = df['pred'].quantile(percentile / 2.)
     df = df[(df['pred'] >= upper) | (df['pred'] <= lower)]
     correct = df[np.sign(df['pred']) == np.sign(df['test'])]
-    return correct.shape[0] / float(df.shape[0])
+    accuracy = correct.shape[0] / float(df.shape[0])
+    if calculate_mcc:
+        tp = df[(np.sign(df['pred']) >= 0) & (
+            np.sign(df['test']) >= 0)].shape[0]
+        tn = df[(np.sign(df['pred']) < 0) & (
+            np.sign(df['test']) <= 0)].shape[0]
+        fp = df[(np.sign(df['pred']) >= 0) & (
+            np.sign(df['test']) < 0)].shape[0]
+        fn = df[(np.sign(df['pred']) < 0) & (
+            np.sign(df['test']) >= 0)].shape[0]
+        mcc_value = mcc(tp, tn, fp, fn)
+        return accuracy, mcc_value
+    return accuracy
 
 
 def load_prediction(prediction_file_path):
