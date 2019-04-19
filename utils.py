@@ -53,11 +53,15 @@ def load_prediction(prediction_file_path):
         with open(prediction_file_path, 'r') as f:
             df_pred = pd.read_csv(f, sep='\t', header=None)
         return ((df_pred[1] - 0.5) * 2).tolist()
+    elif prediction_file_path.endswith(".csv"):
+        with open(prediction_file_path, 'r') as f:
+            df_pred = pd.read_csv(f, header=None)
+        return ((df_pred[1] - 0.5) * 2).tolist()
     elif prediction_file_path.endswith(".npy"):
         df_pred = np.load(prediction_file_path)
         return (df_pred[:, 1] - 0.5) * 2
     else:
-        raise NotImplementedError("only .tsv and .npy are accepted")
+        raise NotImplementedError("only .tsv, .csv and .npy are accepted")
 
 
 def load_test_tsv(path):

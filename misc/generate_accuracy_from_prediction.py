@@ -14,12 +14,13 @@ def get_parser():
     parser.add_argument("--load_location", "-l", required=True)
     # parser.add_argument("--save_location", "-s")
     parser.add_argument("--directory", action="store_true")
+    parser.add_argument("--full", action=True,
+                        help="get full accuracy list on all percentiles")
     return parser
 
 
-def get_one_pred_stat(y_test, y_pred, ret):
+def get_one_pred_stat(y_test, y_pred, ret, percentiles_list=[1, 2, 5, 10, 100]):
     d = {}
-    percentiles_list = [1, 2, 5, 10, 100]
     for p in percentiles_list:
         acc, mcc = get_accuracy(y_pred, y_test, p / 100.,
                                 transform=False, calculate_mcc=True)
@@ -48,9 +49,12 @@ def main():
             args.load_location, "summary_accuracy.csv"))
     else:
         y_pred = load_prediction(args.load_location)
-        stat = get_one_pred_stat(y_test, y_pred, ret)
+        if args.full:
+            stat = get_one_pred_stat(y_test, y_pred, ret, range(1, 101))
+        else:
+            stat = get_one_pred_stat(y_test, y_pred, ret)
         pd.Series(stat, name=os.path.basename(args.load_location).split(
-            '.')[0]).to_csv(args.load_location.split('.')[0] + ".csv")
+            '.')[0]).to_csv(args.load_location.split('.')[0] + "_accuracy.csv")
 
 
 if __name__ == "__main__":
