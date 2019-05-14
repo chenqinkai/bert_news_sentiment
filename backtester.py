@@ -18,16 +18,29 @@ def calculate_daily_pnl(df_daily, return_col_name):
     return (df_daily["Position"] * df_daily[return_col_name]).sum()
 
 
-def prediction_to_position(df_test):
+def prediction_to_position(df_test, percent=0.01, strategy=1):
     """
         where we define our trading strategy
     """
-    th_upper = df_test["Prediction"].quantile(0.99)
-    th_lower = df_test["Prediction"].quantile(0.01)
     df_test["Position"] = 0
-    df_test.loc[df_test["Prediction"] >= th_upper, "Position"] = 10000
-    df_test.loc[df_test["Prediction"] <= th_lower, "Position"] = -10000
-    # print(abs(df_test["Position"]).sum())
+    th_upper = df_test["Prediction"].quantile(1 - percent / 2)
+    th_lower = df_test["Prediction"].quantile(percent / 2)
+    if strategy == 1:
+        df_test.loc[df_test["Prediction"] >= th_upper, "Position"] = 10000
+        df_test.loc[df_test["Prediction"] <= th_lower, "Position"] = -10000
+    elif strategy == 2:
+        th_upper_up = df_test["Prediction"].quantile(1 - percent / 4)
+        th_lower_low = df_test["Prediction"].quantile(percent / 4)
+        df_test.loc[df_test["Prediction"] >= th_upper_up, "Position"] = 10000
+        df_test.loc[df_test["Prediction"] <= th_lower_low, "Position"] = -10000
+        mask_pos = (df_test["Prediction"] < th_upper_up) & (
+            df_test["Prediction"] > th_upper)
+        df_test.loc[mask_pos, "Position"] = (
+            df_test[mask_pos]["Prediction"] - th_upper) / (th_upper_up - th_upper) * 10000 + 0
+        mask_neg = (df_test["Prediction"] > th_lower_low) & (
+            df_test["Prediction"] < th_lower)
+        df_test.loc[mask_neg, "Position"] = -((
+            df_test[mask_neg]["Prediction"] - th_lower_low) / (th_lower - th_lower_low) * 10000 + 0)
     return df_test
 
 
@@ -132,13 +145,22 @@ def parse_file_argument(file_name, model_type="rnn"):
     return d
 
 
-def main():
+def get_parser():
     parser = argparse.ArgumentParser()
     parser.add_argument("--prediction_path")
     parser.add_argument("--save_path")
     parser.add_argument("--prediction_dir")
     parser.add_argument(
         "--save_dir", default=r"D:\data\bert_news_sentiment\reuters\backtest\event_driven\bert")
+    parser.add_argument("--strategy", type=int, choices=[1, 2], default=1)
+    parser.add_argument("--save_series", action="store_true")
+    parser.add_argument("--save_fig", action="store_true")
+    parser.add_argument("--percent", type=float)
+    return parser
+
+
+def main():
+    parser = get_parser()
     args = parser.parse_args()
     if (args.prediction_dir and args.prediction_path) or (not args.prediction_dir and not args.prediction_path):
         raise ValueError(
@@ -157,9 +179,14 @@ def main():
             os.path.join(args.prediction_dir if is_predict_dir else "", file_name))
         df_test_copy = df_test.copy()
         df_test_copy["Prediction"] = prediction
-        df_test_copy = prediction_to_position(df_test_copy)
+        df_test_copy = prediction_to_position(
+            df_test_copy, percent=args.percent, strategy=args.strategy)
         pnl_by_date, stats = get_pnl_by_date(df_test_copy, save_path=os.path.join(
-            args.save_dir if is_predict_dir else "", file_name.split('.')[0] + ".png"), show_fig=False)
+            args.save_dir if is_predict_dir else "", file_name.split('.')[0] + ".png") if args.save_fig else None, show_fig=False)
+        print(stats)
+        if args.save_series:
+            pnl_by_date.to_csv(os.path.join(r"D:\data\bert_news_sentiment\reuters\backtest\event_driven\tmp", os.path.basename(
+                file_name).split('.')[0] + "_strat_%d.csv" % args.strategy))
         if is_predict_dir:
             param = parse_file_argument(file_name)
             param.update(stats)

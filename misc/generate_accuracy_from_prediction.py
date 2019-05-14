@@ -14,7 +14,7 @@ def get_parser():
     parser.add_argument("--load_location", "-l", required=True)
     # parser.add_argument("--save_location", "-s")
     parser.add_argument("--directory", action="store_true")
-    parser.add_argument("--full", action=True,
+    parser.add_argument("--full", action="store_true",
                         help="get full accuracy list on all percentiles")
     return parser
 
